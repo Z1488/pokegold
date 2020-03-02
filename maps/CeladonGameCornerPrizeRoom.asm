@@ -45,10 +45,10 @@ CeladonPrizeRoom_tmcounterloop:
 .psychic
 	checkcoins 3500
 	ifequal HAVE_LESS, CeladonPrizeRoom_notenoughcoins
-	itemtotext TM_PSYCHIC, MEM_BUFFER_0
+	itemtotext TM_PSYCHIC_M, MEM_BUFFER_0
 	scall CeladonPrizeRoom_askbuy
 	iffalse CeladonPrizeRoom_cancel
-	giveitem TM_PSYCHIC
+	giveitem TM_PSYCHIC_M
 	iffalse CeladonPrizeRoom_notenoughroom
 	takecoins 3500
 	jump CeladonPrizeRoom_purchased
@@ -233,7 +233,7 @@ CeladonPrizeRoom_AskWhichPrizeText:
 CeladonPrizeRoom_ConfirmPurchaseText:
 	text "OK, so you wanted"
 	line "a @"
-	text_from_ram wStringBuffer3
+	text_ram wStringBuffer3
 	text "?"
 	done
 

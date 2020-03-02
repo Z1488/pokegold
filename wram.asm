@@ -1,12 +1,16 @@
-INCLUDE "includes.asm"
+INCLUDE "contents.asm"
+INCLUDE "constants.asm"
+
 INCLUDE "macros/wram.asm"
 
-SECTION "Audio", WRAM0
-wc000::
+INCLUDE "vram.asm"
+
+SECTION "Audio RAM", WRAM0
+
 wMusic::
-wMusicPlaying:: ; c000
+
 ; nonzero if playing
-	ds 1
+wMusicPlaying:: db ; c100
 
 wChannels::
 wChannel1:: channel_struct wChannel1 ; c101
@@ -17,121 +21,113 @@ wChannel4:: channel_struct wChannel4 ; c197
 wSFXChannels::
 wChannel5:: channel_struct wChannel5 ; c1c9
 wChannel6:: channel_struct wChannel6 ; c1fb
-wChannel7:: channel_struct wChannel7 ; c12d
-wChannel8:: channel_struct wChannel8 ; c15f
+wChannel7:: channel_struct wChannel7 ; c22d
+wChannel8:: channel_struct wChannel8 ; c25f
 
-	ds 1 ; c191
-wCurTrackDuty:: ds 1
-wCurTrackIntensity:: ds 1
+	ds 1 ; c291
+
+wCurTrackDuty:: db
+wCurTrackIntensity:: db
 wCurTrackFrequency:: dw
-wc196:: ds 1 ; BCD value, dummied out
-wCurNoteDuration:: ds 1 ; used in MusicE0 and LoadNote
+wUnusedBCDNumber:: db ; BCD value, dummied out
+wCurNoteDuration:: db ; used in MusicE0 and LoadNote
 
-wCurMusicByte:: ; c198
-	ds 1
-wCurChannel:: ; c199
-	ds 1
-wVolume:: ; c19a
-; corresponds to $ff24
+wCurMusicByte:: db ; c298
+wCurChannel:: db ; c299
+wVolume:: ; c29a
+; corresponds to rNR50
 ; Channel control / ON-OFF / Volume (R/W)
 ;   bit 7 - Vin->SO2 ON/OFF
 ;   bit 6-4 - SO2 output level (volume) (# 0-7)
 ;   bit 3 - Vin->SO1 ON/OFF
 ;   bit 2-0 - SO1 output level (volume) (# 0-7)
-	ds 1
-wSoundOutput:: ; c19b
-; corresponds to $ff25
+	db
+wSoundOutput:: ; c29b
+; corresponds to rNR51
 ; bit 4-7: ch1-4 so2 on/off
 ; bit 0-3: ch1-4 so1 on/off
-	ds 1
-wSoundInput:: ; c19c
-; corresponds to $ff26
+	db
+wSoundInput:: ; c29c
+; corresponds to rNR52
 ; bit 7: global on/off
 ; bit 0: ch1 on/off
 ; bit 1: ch2 on/off
 ; bit 2: ch3 on/off
 ; bit 3: ch4 on/off
-	ds 1
+	db
 
-wMusicID::
-wMusicIDLo:: ; c19d
-	ds 1
-wMusicIDHi:: ; c19e
-	ds 1
-wMusicBank:: ; c19f
-	ds 1
-wNoiseSampleAddress::
-wNoiseSampleAddressLo:: ; c1a0
-	ds 1
-wNoiseSampleAddressHi:: ; c1a1
-	ds 1
-wNoiseSampleDelay:: ; noise delay? ; c1a2
-	ds 1
-; c1a3
-	ds 1
-wMusicNoiseSampleSet:: ; c1a4
-	ds 1
-wSFXNoiseSampleSet:: ; c1a5
-	ds 1
-wDanger:: ; c1a6
+wMusicID:: dw ; c29d
+wMusicBank:: db ; c29f
+wNoiseSampleAddress:: dw ; c2a0
+wNoiseSampleDelay:: db ; c2a2
+	ds 1 ; c2a3
+wMusicNoiseSampleSet:: db ; c2a4
+wSFXNoiseSampleSet:: db ; c2a5
+
+wLowHealthAlarm:: ; c2a6
 ; bit 7: on/off
 ; bit 4: pitch
 ; bit 0-3: counter
-	ds 1
-wMusicFade:: ; c1a7
+	db
+
+wMusicFade:: ; c2a7
 ; fades volume over x frames
 ; bit 7: fade in/out
 ; bit 0-5: number of frames for each volume level
 ; $00 = none (default)
-	ds 1
-wMusicFadeCount:: ; c1a8
-	ds 1
-wMusicFadeID::
-wMusicFadeIDLo:: ; c1a9
-	ds 1
-wMusicFadeIDHi:: ; c1aa
-	ds 1
+	db
+wMusicFadeCount:: db ; c2a8
+wMusicFadeID:: dw ; c2a9
+
 	ds 5
-wCryPitch:: ; c1b0
-	ds 2
-wCryLength:: ; c1b2
-	ds 2
-wLastVolume:: ; c1b4
-	ds 1
-wc1b5:: ds 1 ; c1b5
-wSFXPriority:: ; c1b6
+
+wCryPitch:: dw ; c2b0
+wCryLength:: dw ; c2b2
+
+wLastVolume:: db ; c2b4
+wUnusedMusicF9Flag:: db ; c2b5
+
+wSFXPriority:: ; c2b6
 ; if nonzero, turn off music when playing sfx
+	db
+
 	ds 1
-	ds 1
-wChannel1JumpCondition:: ds 1
-wChannel2JumpCondition:: ds 1
-wChannel3JumpCondition:: ds 1
-wChannel4JumpCondition:: ds 1
-wStereoPanningMask:: ds 1 ; c1bc
-wCryTracks:: ; c1bd
+
+wChannel1JumpCondition:: db
+wChannel2JumpCondition:: db
+wChannel3JumpCondition:: db
+wChannel4JumpCondition:: db
+
+wStereoPanningMask:: db ; c2bc
+
+wCryTracks:: ; c2bd
 ; plays only in left or right track depending on what side the monster is on
 ; both tracks active outside of battle
-	ds 1
-wSFXDuration:: ds 1
-wCurSFX:: ; c1bf
-; id of sfx currently playing
-	ds 1
-wChannelsEnd::
-wMapMusic:: ; c1c0
-	ds 1
+	db
 
-wDontPlayMapMusicOnReload:: ds 1
+wSFXDuration:: db
+wCurSFX:: ; c2bf
+; id of sfx currently playing
+	db
+wChannelsEnd::
+
+wMapMusic:: db ; c2c0
+
+wDontPlayMapMusicOnReload:: db
 wMusicEnd::
 
-SECTION "WRAM", WRAM0
-wLZAddress:: dw ; c1c2
-wLZBank:: ds 1 ; c1c4
-wc1c5:: ds 1 ; c1c5
 
-wInputType:: ds 1 ; c1c6
-wAutoInputAddress:: dw ; c1c7
-wAutoInputBank:: ds 1 ; c1c9
-wAutoInputLength:: ds 1 ; c1ca
+SECTION "WRAM", WRAM0
+
+wLZAddress:: dw ; c2c2
+wLZBank::    db ; c2c4
+
+wBoxAlignment:: db
+
+wInputType::        db ; c2c6
+wAutoInputAddress:: dw ; c2c7
+wAutoInputBank::    db ; c2c9
+wAutoInputLength::  db ; c2ca
 
 wMonStatusFlags:: ds 1 ; c1cb
 wGameLogicPaused:: ds 1 ; c1cc
@@ -202,9 +198,51 @@ wTempOBPals:: palbuffer wTempOB ; c240
 wBGPals::     palbuffer wBG     ; c280
 wOBPals::     palbuffer wOB     ; c2c0
 
-SECTION "OAM Buffer", WRAM0
-wOAMBuffer:: ; c300
-	ds 4 * 40
+SECTION "Sprites", WRAM0
+
+wVirtualOAM:: ; c300
+wVirtualOAMSprite00:: sprite_oam_struct wVirtualOAMSprite00
+wVirtualOAMSprite01:: sprite_oam_struct wVirtualOAMSprite01
+wVirtualOAMSprite02:: sprite_oam_struct wVirtualOAMSprite02
+wVirtualOAMSprite03:: sprite_oam_struct wVirtualOAMSprite03
+wVirtualOAMSprite04:: sprite_oam_struct wVirtualOAMSprite04
+wVirtualOAMSprite05:: sprite_oam_struct wVirtualOAMSprite05
+wVirtualOAMSprite06:: sprite_oam_struct wVirtualOAMSprite06
+wVirtualOAMSprite07:: sprite_oam_struct wVirtualOAMSprite07
+wVirtualOAMSprite08:: sprite_oam_struct wVirtualOAMSprite08
+wVirtualOAMSprite09:: sprite_oam_struct wVirtualOAMSprite09
+wVirtualOAMSprite10:: sprite_oam_struct wVirtualOAMSprite10
+wVirtualOAMSprite11:: sprite_oam_struct wVirtualOAMSprite11
+wVirtualOAMSprite12:: sprite_oam_struct wVirtualOAMSprite12
+wVirtualOAMSprite13:: sprite_oam_struct wVirtualOAMSprite13
+wVirtualOAMSprite14:: sprite_oam_struct wVirtualOAMSprite14
+wVirtualOAMSprite15:: sprite_oam_struct wVirtualOAMSprite15
+wVirtualOAMSprite16:: sprite_oam_struct wVirtualOAMSprite16
+wVirtualOAMSprite17:: sprite_oam_struct wVirtualOAMSprite17
+wVirtualOAMSprite18:: sprite_oam_struct wVirtualOAMSprite18
+wVirtualOAMSprite19:: sprite_oam_struct wVirtualOAMSprite19
+wVirtualOAMSprite20:: sprite_oam_struct wVirtualOAMSprite20
+wVirtualOAMSprite21:: sprite_oam_struct wVirtualOAMSprite21
+wVirtualOAMSprite22:: sprite_oam_struct wVirtualOAMSprite22
+wVirtualOAMSprite23:: sprite_oam_struct wVirtualOAMSprite23
+wVirtualOAMSprite24:: sprite_oam_struct wVirtualOAMSprite24
+wVirtualOAMSprite25:: sprite_oam_struct wVirtualOAMSprite25
+wVirtualOAMSprite26:: sprite_oam_struct wVirtualOAMSprite26
+wVirtualOAMSprite27:: sprite_oam_struct wVirtualOAMSprite27
+wVirtualOAMSprite28:: sprite_oam_struct wVirtualOAMSprite28
+wVirtualOAMSprite29:: sprite_oam_struct wVirtualOAMSprite29
+wVirtualOAMSprite30:: sprite_oam_struct wVirtualOAMSprite30
+wVirtualOAMSprite31:: sprite_oam_struct wVirtualOAMSprite31
+wVirtualOAMSprite32:: sprite_oam_struct wVirtualOAMSprite32
+wVirtualOAMSprite33:: sprite_oam_struct wVirtualOAMSprite33
+wVirtualOAMSprite34:: sprite_oam_struct wVirtualOAMSprite34
+wVirtualOAMSprite35:: sprite_oam_struct wVirtualOAMSprite35
+wVirtualOAMSprite36:: sprite_oam_struct wVirtualOAMSprite36
+wVirtualOAMSprite37:: sprite_oam_struct wVirtualOAMSprite37
+wVirtualOAMSprite38:: sprite_oam_struct wVirtualOAMSprite38
+wVirtualOAMSprite39:: sprite_oam_struct wVirtualOAMSprite39
+wVirtualOAMEnd::
+
 
 SECTION "TileMap", WRAM0
 wTileMap:: ; c3a0
@@ -579,6 +617,7 @@ wc6fe:: ds 1 ; c6fe
 wc6ff:: ds 1 ; c6ff
 
 wOverworldMap::
+wOverworldMapBlocks::
 wLYOverrides::
 wc700:: ds 1 ; c700
 wc701:: ds 1 ; c701
@@ -2062,9 +2101,13 @@ wMonType:: ds 1 ; ce5f
 wCurSpecies:: ds 1 ; ce60
 wce61:: ds 1 ; ce61
 wce62:: ds 1 ; ce62
-wce63:: ds 1 ; ce63
+wce63::
+wJumpTableIndex::
+	db ; ce63
 wce64:: ds 1 ; ce64
-wce65:: ds 1 ; ce65
+wce65::
+wIntroSceneTimer::
+	db ; ce65
 wce66:: ds 1 ; ce66
 
 wRequested2bpp:: ds 1 ; ce67
@@ -2385,8 +2428,8 @@ wcfd8:: ds 1 ; cfd8
 wcfd9:: ds 1 ; cfd9
 wcfda:: ds 1 ; cfda
 wPredefID:: ds 1 ; cfdb
-wPredefHLBuffer:: dw ; cfdc
-wPredefPointerBuffer:: dw ; cfde
+wPredefTemp:: dw ; cfdc
+wPredefAddress:: dw ; cfde
 wFarCallBCBuffer:: dw ; cfe0
 wcfe2:: ds 1 ; cfe2
 wcfe3:: ds 1 ; cfe3
@@ -2640,7 +2683,12 @@ wd114:: ds 1 ; d114
 wd115:: ds 1 ; d115
 wBattleMode:: ds 1 ; d116
 wd117:: ds 1 ; d117
-wd118:: ds 1 ; d118
+
+wOtherTrainerClass:: ; d118
+; class (Youngster, Bug Catcher, etc.) of opposing trainer
+; 0 if opponent is a wild Pokémon, not a trainer
+	db
+
 wBattleType:: ds 1 ; d119
 wd11a:: ds 1 ; d11a
 wd11b:: ds 1 ; d11b
@@ -2649,7 +2697,7 @@ wTrainerClass:: ds 1 ; d11d
 wd11e:: ds 1 ; d11e
 wd11f:: ds 1 ; d11f
 
-wBaseData::
+wBaseData:: ; d120
 wd120:: ds 1 ; d120
 wd121:: ds 1 ; d121
 wd122:: ds 1 ; d122
@@ -2665,7 +2713,7 @@ wd12b:: ds 1 ; d12b
 wd12c:: ds 1 ; d12c
 wd12d:: ds 1 ; d12d
 wd12e:: ds 1 ; d12e
-wd12f:: ds 1 ; d12f
+wBaseEggSteps:: db ; d12f
 wd130:: ds 1 ; d130
 wd131:: ds 1 ; d131
 wd132:: ds 1 ; d132
@@ -2703,6 +2751,7 @@ wd150:: ds 1 ; d150
 wTempNumBuffer::
 wNamedObjectIndexBuffer::
 wDeciramBuffer::
+wBreedingCompatibility::
 wd151:: ds 1 ; d151
 wd152:: ds 1 ; d152
 wd153:: ds 1 ; d153
@@ -2787,11 +2836,11 @@ wOptions:: ; d199
 	ds 1
 	
 wSaveFileExists:: ds 1 ; d19a
-wTextBoxFrame:: ; d19b
+wTextboxFrame:: ; d19b
 ; bits 0-2: textbox frame 0-7
 	ds 1
 
-wTextBoxFlags:: ; d19c
+wTextboxFlags:: ; d19c
 ; bit 0: 1-frame text delay
 ; bit 1: when unset, no text delay
 	ds 1
@@ -2991,7 +3040,7 @@ wLastDexMode:: ds 1 ; d67e
 wWhichRegisteredItem:: ds 1 ; d680
 wRegisteredItem:: ds 1 ; d681
 
-wPlayerBikeSurfState:: ds 1 ; d682
+wPlayerState:: ds 1 ; d682
 
 wd683:: ds 1 ; d683
 wd684:: ds 1 ; d684
@@ -3605,7 +3654,7 @@ wBreedMon1OT::    ds NAME_LENGTH ; dc4c
 ; TODO fix incorrect Stats label
 wBreedMon1Stats:: box_struct wBreedMon1 ; dc57
 
-wDaycareLady:: ; dc77
+wDayCareLady:: ; dc77
 ; bit 7: active
 ; bit 0: monster 2 in day-care
 	ds 1
